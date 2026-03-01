@@ -1,0 +1,60 @@
+## Ignore build outputs
+bin/
+obj/
+publish/
+artifacts/
+
+## Visual Studio
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## ReSharper
+_ReSharper*/
+*.DotSettings.user
+
+## NuGet
+*.nupkg
+project.lock.json
+packages/
+*.snupkg
+*.symbols.nupkg
+.nuget/
+
+## ASP.NET Core / user secrets
+appsettings.Development.json
+secrets.json
+
+## Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## Logs
+*.log
+logs/
+
+## OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+## Temporary files
+*.tmp
+*.temp
+
+## Test results
+TestResults/
+
+## Coverage
+coverage/
+
+## JetBrains
+*.ide
