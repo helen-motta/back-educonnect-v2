@@ -37,6 +37,7 @@ builder.Services.AddScoped<TurmasUseCase>();
 builder.Services.AddScoped<DisciplinasUseCase>(); 
 builder.Services.AddScoped<RequerimentosUseCase>();
 builder.Services.AddScoped<DocumentoUseCase>();
+builder.Services.AddScoped<ListarEventosUseCase>();
 
 // Registrar dependências do módulo Acadêmico
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
@@ -47,28 +48,46 @@ builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
 // builder.Services.AddScoped<CalcularDesempenhoAcademicoUseCase>();
 builder.Services.AddScoped<IRequerimentosRepository, RequerimentosRepository>();
 builder.Services.AddScoped<IDocumentoRepository, DocumentoRepository>();
+builder.Services.AddScoped<IEventoRepository, EventoRepository>();
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
 var issuer = jwtSettings["Issuer"];
 var audience = jwtSettings["Audience"];
+System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
-        options.TokenValidationParameters = new TokenValidationParameters { /* sua config */ };
+        options.TokenValidationParameters = new TokenValidationParameters 
+        { 
+             ValidateIssuerSigningKey = true,
+             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+             ValidateIssuer = true,
+             ValidIssuer = issuer,
+             ValidateAudience = true,
+             ValidAudience = audience,
+             ValidateLifetime = true,
+             ClockSkew = TimeSpan.Zero
+        };
 
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
             {
-                context.Token = context.Request.Cookies["X-Access-Token"];
+                // Verifica se tem token no Cookie. 
+                // Se NÃO tiver, ele deixa o .NET procurar no cabeçalho Authorization (padrão)
+                var cookieToken = context.Request.Cookies["X-Access-Token"];
+                if (!string.IsNullOrEmpty(cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
                 return Task.CompletedTask;
             }
         };
     });
-
+    
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();

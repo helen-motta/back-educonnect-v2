@@ -24,6 +24,11 @@ namespace Shared.Infrastructure
         public DbSet<Turma> Turmas { get; set; }
         public DbSet<GradeHorario> GradeHorarios { get; set; }
 
+        public DbSet<InscricoesTurmas> InscricoesTurmas { get; set; }
+
+        // Eventos
+        public DbSet<Eventos> Eventos { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -186,6 +191,26 @@ namespace Shared.Infrastructure
             modelBuilder.Entity<GradeHorario>()
                 .Property(g => g.Fim)
                 .HasColumnName("fim");
-        }
+
+            // Eventos
+    modelBuilder.Entity<Eventos>(entity =>
+    {
+        entity.ToTable("Eventos");
+        entity.HasKey(e => e.Id);
+
+        entity.Property(e => e.Titulo).IsRequired().HasMaxLength(100);
+        entity.Property(e => e.Descricao).HasMaxLength(500);
+
+        entity.HasOne<Usuario>() 
+              .WithMany() 
+              .HasForeignKey(e => e.ProfessorId)
+              .OnDelete(DeleteBehavior.Restrict); 
+
+        entity.HasOne<Disciplina>()
+              .WithMany()
+              .HasForeignKey(e => e.DisciplinaId)
+              .OnDelete(DeleteBehavior.Cascade);
+    });
+}
     }
 }

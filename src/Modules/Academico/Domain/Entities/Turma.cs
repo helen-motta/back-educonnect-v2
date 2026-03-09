@@ -25,5 +25,7 @@ namespace Modules.Academico.Domain.Entities
         public virtual Usuario Professor { get; set; }
 
         public virtual TurmaSlot TurmaSlots { get; set; }
+
+        public virtual ICollection<InscricoesTurmas> InscricoesTurmas { get; set; } = new List<InscricoesTurmas>();
     }
 }

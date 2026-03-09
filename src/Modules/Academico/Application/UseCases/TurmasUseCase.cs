@@ -25,5 +25,25 @@ namespace Modules.Academico.Application.UseCases
         {
             return await _turmasRepository.Execute(filtro);
         }
+
+        public async Task<IEnumerable<TurmaListaDTO>> GetTurmasById(int professorId)
+        {
+            return await _turmasRepository.GetTurmaById(professorId);
+        }
+
+        public async Task<IEnumerable<HorarioAlunoDTO>> GetHorariosPorAluno(int alunoId)
+        {
+            return await _turmasRepository.GetHorariosPorAluno(alunoId);
+        }
+
+        public async Task<IEnumerable<NotasFrequenciaDto>> GetNotasEFrequenciaPorAluno(int alunoId)
+        {
+            return await _turmasRepository.GetNotasEFrequenciaPorAluno(alunoId);
+        }
+
+        public async Task<List<TurmaListaDTO>> GetTurmasPorProfessor(int professorId)
+        {
+            return await _turmasRepository.GetTurmasPorProfessor(professorId);
+        }
     }
 }

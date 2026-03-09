@@ -118,8 +118,12 @@ namespace Modules.Autenticacao.Infrastructure.Services
         {
             try
             {
-                var from = new EmailAddress(_fromEmail, _fromName);
-                var to = new EmailAddress("helenmottab@gmail.com");
+                // Remetente fixo solicitado
+                var from = new EmailAddress("educonnect.mailbox@gmail.com", _fromName);
+
+                // Destinatário passado por parâmetro
+                var to = new EmailAddress(destinatario);
+
                 var msg = MailHelper.CreateSingleEmail(from, to, assunto, conteudo, conteudo);
 
                 var response = await _sendGridClient.SendEmailAsync(msg);

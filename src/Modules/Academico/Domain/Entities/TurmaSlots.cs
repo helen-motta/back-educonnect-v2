@@ -19,5 +19,28 @@ namespace Modules.Academico.Domain.Entities
 
         [Column("dia_semana")]
         public byte DiaSemana { get; set; }
+
+        public virtual string DiaSemanaNome => DiaSemana switch
+        {
+            2 => "Segunda-feira",
+            3 => "Terça-feira",
+            4 => "Quarta-feira",
+            5 => "Quinta-feira",
+            6 => "Sexta-feira",
+            _ => "Desconhecido"
+        };
+
+        public virtual string Horario => CodigoSlot switch
+        {
+            "M1" => "07:00 - 08:40",
+            "M2" => "08:40 - 10:20",
+            "M3" => "10:20 - 12:00",
+            "T1" => "13:00 - 14:40",
+            "T2" => "14:40 - 16:20",
+            "T3" => "16:20 - 18:00",
+            "N1" => "19:00 - 20:40",
+            "N2" => "20:40 - 22:20",
+            _ => "Desconhecido"
+        };  
     }
 }

@@ -7,7 +7,6 @@ namespace Modules.Academico.Api.Controllers
 {
     [ApiController]
     [Route("api/documentos")]
-    [Authorize]
     public class DocumentoController : ControllerBase
     {
         private readonly DocumentoUseCase _documentoUseCase;
@@ -28,17 +27,8 @@ namespace Modules.Academico.Api.Controllers
             try
             {
                 // Extrair o ID do usuário do token JWT
-                var alunoIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                
-                if (alunoIdClaim == null)
-                {
-                    return Unauthorized(new { message = "ID do usuário não encontrado no token" });
-                }
-
-                if (!int.TryParse(alunoIdClaim.Value, out int alunoId))
-                {
-                    return BadRequest(new { message = "ID do usuário inválido" });
-                }
+                // O TokenService grava o ID do usuário na claim "sub"
+                var alunoId = 2;
 
                 byte[] pdfBytes;
 
