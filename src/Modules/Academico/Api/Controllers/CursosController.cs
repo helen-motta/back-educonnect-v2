@@ -62,5 +62,34 @@ namespace src.Modules.Academico.Api.Controllers.CursosController
             var curso = await _cursosUseCase.CriarCursoAsync(request);
             return CreatedAtAction(nameof(ObterPorId), new { id = curso.Id }, curso);
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Curso>> AtualizarCurso(int id, [FromBody] CriarCursoRequest request)
+        {
+            if (id <= 0)
+                return BadRequest("ID deve ser maior que zero.");
+
+            if (request == null)
+                return BadRequest("Dados do curso são obrigatórios.");
+
+            if (string.IsNullOrWhiteSpace(request.Nome))
+                return BadRequest("Nome do curso é obrigatório.");
+
+            if (string.IsNullOrWhiteSpace(request.Codigo))
+                return BadRequest("Código do curso é obrigatório.");
+
+            if (request.CargaHoraria <= 0)
+                return BadRequest("Carga horária deve ser maior que zero.");
+
+            if (request.IdCoordenador <= 0)
+                return BadRequest("ID do coordenador é obrigatório.");
+
+            var cursoAtualizado = await _cursosUseCase.AtualizarCursoAsync(id, request);
+
+            if (cursoAtualizado == null)
+                return NotFound($"Curso com ID {id} não encontrado.");
+
+            return Ok(cursoAtualizado);
+        }
     }
 }

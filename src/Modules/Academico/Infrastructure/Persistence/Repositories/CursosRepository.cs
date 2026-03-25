@@ -52,5 +52,11 @@ namespace Modules.Academico.Domain.Interfaces
             await _context.SaveChangesAsync();
             return curso;
         }
+
+        public async Task AtualizarAsync(Curso curso)
+        {
+            _context.Cursos.Update(curso);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.Autenticacao.Domain.Entities;
 using Modules.Academico.Domain.Entities;
+using Shared.Domain.Entities;
 using src.Modules.Academico.Domain.Entities;
 
 namespace Shared.Infrastructure
@@ -28,6 +29,7 @@ namespace Shared.Infrastructure
 
         // Eventos
         public DbSet<Eventos> Eventos { get; set; }
+        public DbSet<Auditoria> Auditorias { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -211,6 +213,54 @@ namespace Shared.Infrastructure
               .HasForeignKey(e => e.DisciplinaId)
               .OnDelete(DeleteBehavior.Cascade);
     });
+
+        modelBuilder.Entity<Auditoria>(entity =>
+        {
+          entity.ToTable("auditoria");
+          entity.HasKey(a => a.Id);
+
+          entity.Property(a => a.Id)
+              .HasColumnName("id")
+              .HasDefaultValueSql("NEWID()");
+
+          entity.Property(a => a.TabelaNome)
+              .HasColumnName("tabela_nome")
+              .HasMaxLength(100)
+              .IsRequired();
+
+          entity.Property(a => a.EntidadeId)
+              .HasColumnName("entidade_id")
+              .HasMaxLength(50)
+              .IsRequired();
+
+          entity.Property(a => a.Operacao)
+              .HasColumnName("operacao")
+              .HasMaxLength(10)
+              .IsRequired();
+
+          entity.Property(a => a.DadosAnterior)
+              .HasColumnName("dados_anterior");
+
+          entity.Property(a => a.DadosAtual)
+              .HasColumnName("dados_atual");
+
+          entity.Property(a => a.UsuarioId)
+              .HasColumnName("usuario_id")
+              .HasMaxLength(50)
+              .IsRequired();
+
+          entity.Property(a => a.DataHora)
+              .HasColumnName("data_hora")
+              .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+          entity.Property(a => a.EnderecoIp)
+              .HasColumnName("endereco_ip")
+              .HasMaxLength(45);
+
+          entity.Property(a => a.UserAgent)
+              .HasColumnName("user_agent")
+              .HasMaxLength(255);
+        });
 }
     }
 }

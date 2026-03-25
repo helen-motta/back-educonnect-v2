@@ -42,6 +42,25 @@ namespace Modules.Autenticacao.Application.UseCases
             return await _cursosRepository.AdicionarAsync(curso);
         }
 
+        public async Task<Curso?> AtualizarCursoAsync(int id, CriarCursoRequest request)
+        {
+            var curso = await _cursosRepository.BuscarPorIdAsync(id);
+            if (curso == null)
+            {
+                return null;
+            }
+
+            curso.Nome = request.Nome;
+            curso.Codigo = request.Codigo;
+            curso.Descricao = request.Descricao;
+            curso.CargaHoraria = request.CargaHoraria;
+            curso.Modalidade = request.Modalidade;
+            curso.IdCoordenador = request.IdCoordenador;
+
+            await _cursosRepository.AtualizarAsync(curso);
+            return curso;
+        }
+
         public async Task<PagedResponse<CursoDto>> Execute(PaginacaoCursosDto filtro)
         {
             var (cursos, total) = await _cursosRepository.ListarCursosPaginados(filtro);

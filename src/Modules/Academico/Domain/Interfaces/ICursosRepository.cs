@@ -7,5 +7,6 @@ namespace Modules.Academico.Domain.Interfaces
         Task<Curso?> BuscarPorIdAsync(int id);
         Task<(IEnumerable<Curso> cursos, int total)> ListarCursosPaginados(PaginacaoCursosDto filtro);
         Task<Curso> AdicionarAsync(Curso curso);
+        Task AtualizarAsync(Curso curso);
     }
 }

@@ -16,16 +16,30 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
     public class DisciplinasController : ControllerBase
     {
         private readonly DisciplinasUseCase _disciplinasUseCase;
+        private readonly AuditoriaUseCase _auditoriaUseCase;
 
-        public DisciplinasController(DisciplinasUseCase disciplinasUseCase)
+        public DisciplinasController(DisciplinasUseCase disciplinasUseCase, AuditoriaUseCase auditoriaUseCase)
         {
             _disciplinasUseCase = disciplinasUseCase;
+            _auditoriaUseCase = auditoriaUseCase;
         }
 
         [HttpGet("/{idCurso}")]
         public async Task<IActionResult> ObterPorIdCurso(int idCurso)
         {
             var disciplinas = await _disciplinasUseCase.ObterPorIdCursoAsync(idCurso);
+
+            await _auditoriaUseCase.RegistrarAsync(new RegistrarAuditoriaRequestDto
+            {
+                TabelaNome = "disciplinas",
+                EntidadeId = idCurso.ToString(),
+                Operacao = "SELECT",
+                DadosAtual = new { idCurso, endpoint = "obter-por-curso" },
+                UsuarioId = ObterUsuarioId(),
+                EnderecoIp = ObterEnderecoIp(),
+                UserAgent = ObterUserAgent()
+            });
+
             return Ok(disciplinas);
         }
 
@@ -51,7 +65,34 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
                 return BadRequest("ID do curso é obrigatório.");
 
             var disciplina = await _disciplinasUseCase.CriarDisciplinaAsync(request);
+
+            await _auditoriaUseCase.RegistrarAsync(new RegistrarAuditoriaRequestDto
+            {
+                TabelaNome = "disciplinas",
+                EntidadeId = disciplina.Id.ToString(),
+                Operacao = "INSERT",
+                DadosAtual = disciplina,
+                UsuarioId = ObterUsuarioId(),
+                EnderecoIp = ObterEnderecoIp(),
+                UserAgent = ObterUserAgent()
+            });
+
             return Created($"/api/disciplinas/{disciplina.Id}", disciplina);
+        }
+
+        private string ObterUsuarioId()
+        {
+            return User.FindFirst("sub")?.Value ?? "anonimo";
+        }
+
+        private string? ObterEnderecoIp()
+        {
+            return HttpContext.Connection.RemoteIpAddress?.ToString();
+        }
+
+        private string? ObterUserAgent()
+        {
+            return Request.Headers.UserAgent.ToString();
         }
     }
 }

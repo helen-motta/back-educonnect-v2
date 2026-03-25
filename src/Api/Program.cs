@@ -35,12 +35,14 @@ builder.Services.AddScoped<UsuarioUseCase>();
 builder.Services.AddScoped<CursosUseCase>(); 
 builder.Services.AddScoped<TurmasUseCase>();
 builder.Services.AddScoped<DisciplinasUseCase>(); 
+builder.Services.AddScoped<AuditoriaUseCase>();
 builder.Services.AddScoped<RequerimentosUseCase>();
 builder.Services.AddScoped<DocumentoUseCase>();
 builder.Services.AddScoped<ListarEventosUseCase>();
 
 // Registrar dependências do módulo Acadêmico
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 builder.Services.AddScoped<IDisciplinasRepository, DisciplinasRepository>();
 // builder.Services.AddScoped<IAvaliacaoRepository, AvaliacaoRepository>();
 builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
