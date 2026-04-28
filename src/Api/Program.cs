@@ -39,6 +39,7 @@ builder.Services.AddScoped<AuditoriaUseCase>();
 builder.Services.AddScoped<RequerimentosUseCase>();
 builder.Services.AddScoped<DocumentoUseCase>();
 builder.Services.AddScoped<ListarEventosUseCase>();
+builder.Services.AddScoped<ProfessorLancamentosUseCase>();
 
 // Registrar dependências do módulo Acadêmico
 builder.Services.AddScoped<IAlunoRepository, AlunoRepository>();
@@ -51,6 +52,7 @@ builder.Services.AddScoped<IFrequenciaRepository, FrequenciaRepository>();
 builder.Services.AddScoped<IRequerimentosRepository, RequerimentosRepository>();
 builder.Services.AddScoped<IDocumentoRepository, DocumentoRepository>();
 builder.Services.AddScoped<IEventoRepository, EventoRepository>();
+builder.Services.AddScoped<IProfessorLancamentosRepository, ProfessorLancamentosRepository>();
 
 
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");

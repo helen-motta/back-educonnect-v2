@@ -63,5 +63,27 @@ namespace src.Modules.Academico.Api.Controllers
 
             return Ok(requerimento);
         }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Requerimentos>> AtualizarStatus(int id, [FromBody] AtualizarRequerimentoStatusDto request)
+        {
+            if (id <= 0)
+                return BadRequest("ID deve ser maior que zero.");
+
+            if (request == null)
+                return BadRequest("Dados para atualização são obrigatórios.");
+
+            if (string.IsNullOrWhiteSpace(request.Status))
+                return BadRequest("Status é obrigatório.");
+
+            var requerimento = await _requerimentosUseCase.ObterRequerimentoPorIdAsync(id);
+            if (requerimento == null)
+                return NotFound($"Requerimento com ID {id} não encontrado.");
+
+            await _requerimentosUseCase.AtualizarStatusRequerimentoAsync(id, request.Status, request.RespostaAdmin);
+
+            var requerimentoAtualizado = await _requerimentosUseCase.ObterRequerimentoPorIdAsync(id);
+            return Ok(requerimentoAtualizado);
+        }
     }
 }

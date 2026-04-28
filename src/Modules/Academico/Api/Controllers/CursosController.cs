@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Modules.Academico.Application.DTOs;
+using Modules.Academico.Application.UseCases;
 using Modules.Autenticacao.Application.UseCases;
+using Shared.Api;
 using src.Modules.Academico.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,13 +13,15 @@ namespace src.Modules.Academico.Api.Controllers.CursosController
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CursosController : ControllerBase
+    public class CursosController : BaseApiController
     {
         private readonly CursosUseCase _cursosUseCase;
 
-        public CursosController(CursosUseCase cursosUseCase)
+        private readonly AuditoriaUseCase _auditoriaUseCase;
+        public CursosController(CursosUseCase cursosUseCase, AuditoriaUseCase auditoriaUseCase)
         {
             _cursosUseCase = cursosUseCase;
+            _auditoriaUseCase = auditoriaUseCase;
         }
 
         [HttpGet("{id}")]
@@ -85,6 +89,17 @@ namespace src.Modules.Academico.Api.Controllers.CursosController
                 return BadRequest("ID do coordenador é obrigatório.");
 
             var cursoAtualizado = await _cursosUseCase.AtualizarCursoAsync(id, request);
+
+            await _auditoriaUseCase.RegistrarAsync(new RegistrarAuditoriaRequestDto
+            {
+                TabelaNome = "cursos",
+                EntidadeId = cursoAtualizado.Id.ToString(),
+                Operacao = "UPDATE",
+                DadosAtual = cursoAtualizado,
+                UsuarioId = ObterUsuarioId(),
+                EnderecoIp = ObterEnderecoIp(),
+                UserAgent = ObterUserAgent()
+            });
 
             if (cursoAtualizado == null)
                 return NotFound($"Curso com ID {id} não encontrado.");

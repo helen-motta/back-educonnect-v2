@@ -18,8 +18,9 @@ namespace Shared.Infrastructure
         public DbSet<Aluno> Alunos { get; set; }
         public DbSet<Disciplina> Disciplinas { get; set; }
         public DbSet<Matricula> Matriculas { get; set; }
-        public DbSet<Avaliacao> Avaliacoes { get; set; }
-        public DbSet<Frequencia> Frequencias { get; set; }
+        public DbSet<AvaliacaoProfessor> AvaliacoesProfessor { get; set; }
+        public DbSet<FrequenciaProfessor> FrequenciasProfessor { get; set; }
+        public DbSet<NotaProfessor> NotasProfessor { get; set; }
         public DbSet<Curso> Cursos { get; set; }
         public DbSet<Requerimentos> Requerimentos { get; set; }
         public DbSet<Turma> Turmas { get; set; }
@@ -128,38 +129,59 @@ namespace Shared.Infrastructure
                 .Property(d => d.CargaHoraria)
                 .HasColumnName("carga_horaria");
 
-            // Mapeamento Avaliacao
-            modelBuilder.Entity<Avaliacao>().ToTable("avaliacoes");
-            modelBuilder.Entity<Avaliacao>()
+            // Mapeamento Avaliacoes (lançamento do professor)
+            modelBuilder.Entity<AvaliacaoProfessor>().ToTable("avaliacoes");
+            modelBuilder.Entity<AvaliacaoProfessor>()
                 .Property(a => a.Id)
                 .HasColumnName("id");
-            modelBuilder.Entity<Avaliacao>()
-                .Property(a => a.MatriculaId)
-                .HasColumnName("matricula_id");
-            modelBuilder.Entity<Avaliacao>()
+            modelBuilder.Entity<AvaliacaoProfessor>()
+                .Property(a => a.IdTurma)
+                .HasColumnName("id_turma");
+            modelBuilder.Entity<AvaliacaoProfessor>()
                 .Property(a => a.Nome)
                 .HasColumnName("nome");
-            modelBuilder.Entity<Avaliacao>()
-                .Property(a => a.Fechada)
-                .HasColumnName("fechada");
+            modelBuilder.Entity<AvaliacaoProfessor>()
+                .Property(a => a.DataPrevista)
+                .HasColumnName("data_prevista");
+            modelBuilder.Entity<AvaliacaoProfessor>()
+                .Property(a => a.Peso)
+                .HasColumnName("peso");
 
-            // Mapeamento Frequencia
-            modelBuilder.Entity<Frequencia>().ToTable("frequencias");
-            modelBuilder.Entity<Frequencia>()
+            // Mapeamento Frequencias (lançamento do professor)
+            modelBuilder.Entity<FrequenciaProfessor>().ToTable("frequencias");
+            modelBuilder.Entity<FrequenciaProfessor>()
                 .Property(f => f.Id)
                 .HasColumnName("id");
-            modelBuilder.Entity<Frequencia>()
-                .Property(f => f.MatriculaId)
-                .HasColumnName("matricula_id");
-            modelBuilder.Entity<Frequencia>()
-                .Property(f => f.AulasAssistidas)
-                .HasColumnName("aulas_assistidas");
-            modelBuilder.Entity<Frequencia>()
-                .Property(f => f.TotalAulas)
-                .HasColumnName("total_aulas");
-            modelBuilder.Entity<Frequencia>()
-                .Property(f => f.Consolidada)
-                .HasColumnName("consolidada");
+            modelBuilder.Entity<FrequenciaProfessor>()
+                .Property(f => f.IdMatricula)
+                .HasColumnName("id_matricula");
+            modelBuilder.Entity<FrequenciaProfessor>()
+                .Property(f => f.DataAula)
+                .HasColumnName("data_aula");
+            modelBuilder.Entity<FrequenciaProfessor>()
+                .Property(f => f.Presente)
+                .HasColumnName("presente");
+            modelBuilder.Entity<FrequenciaProfessor>()
+                .Property(f => f.Justificativa)
+                .HasColumnName("justificativa");
+            modelBuilder.Entity<FrequenciaProfessor>()
+                .Property(f => f.QtdAulas)
+                .HasColumnName("qtd_aulas");
+
+            // Mapeamento Notas (lançamento do professor)
+            modelBuilder.Entity<NotaProfessor>().ToTable("notas");
+            modelBuilder.Entity<NotaProfessor>()
+                .Property(n => n.Id)
+                .HasColumnName("id");
+            modelBuilder.Entity<NotaProfessor>()
+                .Property(n => n.IdAvaliacao)
+                .HasColumnName("id_avaliacao");
+            modelBuilder.Entity<NotaProfessor>()
+                .Property(n => n.IdMatricula)
+                .HasColumnName("id_matricula");
+            modelBuilder.Entity<NotaProfessor>()
+                .Property(n => n.ValorObtido)
+                .HasColumnName("valor_obtido");
 
             // Mapeamento Turma
             modelBuilder.Entity<Turma>().ToTable("turmas");

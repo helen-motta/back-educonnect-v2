@@ -3,6 +3,7 @@ using Modules.Academico.Application.DTOs;
 using Modules.Academico.Application.UseCases;
 using Modules.Academico.Domain.Entities;
 using Modules.Autenticacao.Application.UseCases;
+using Shared.Api;
 using src.Modules.Academico.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class DisciplinasController : ControllerBase
+    public class DisciplinasController : BaseApiController
     {
         private readonly DisciplinasUseCase _disciplinasUseCase;
         private readonly AuditoriaUseCase _auditoriaUseCase;
@@ -28,17 +29,6 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
         public async Task<IActionResult> ObterPorIdCurso(int idCurso)
         {
             var disciplinas = await _disciplinasUseCase.ObterPorIdCursoAsync(idCurso);
-
-            await _auditoriaUseCase.RegistrarAsync(new RegistrarAuditoriaRequestDto
-            {
-                TabelaNome = "disciplinas",
-                EntidadeId = idCurso.ToString(),
-                Operacao = "SELECT",
-                DadosAtual = new { idCurso, endpoint = "obter-por-curso" },
-                UsuarioId = ObterUsuarioId(),
-                EnderecoIp = ObterEnderecoIp(),
-                UserAgent = ObterUserAgent()
-            });
 
             return Ok(disciplinas);
         }
@@ -80,19 +70,5 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
             return Created($"/api/disciplinas/{disciplina.Id}", disciplina);
         }
 
-        private string ObterUsuarioId()
-        {
-            return User.FindFirst("sub")?.Value ?? "anonimo";
-        }
-
-        private string? ObterEnderecoIp()
-        {
-            return HttpContext.Connection.RemoteIpAddress?.ToString();
-        }
-
-        private string? ObterUserAgent()
-        {
-            return Request.Headers.UserAgent.ToString();
-        }
     }
 }

@@ -44,6 +44,53 @@ public class AuditController : ControllerBase
 		return Ok(recentLogs);
 	}
 
+	[HttpGet("logs")]
+	public async Task<IActionResult> GetLogsTable([FromQuery] PaginacaoAuditLogsDto filtro)
+	{
+		var pagina = NormalizarPagina(filtro.PaginaNumero);
+		var tamanho = NormalizarTamanhoPagina(filtro.PaginaTamanho);
+
+		var query = _context.Auditorias.AsNoTracking().AsQueryable();
+
+		if (!string.IsNullOrWhiteSpace(filtro.Usuario))
+			query = query.Where(a => a.UsuarioId.Contains(filtro.Usuario));
+
+		if (!string.IsNullOrWhiteSpace(filtro.Tipo))
+			query = query.Where(a => a.TabelaNome.Contains(filtro.Tipo));
+
+		if (!string.IsNullOrWhiteSpace(filtro.Acao))
+			query = query.Where(a => a.Operacao.Contains(filtro.Acao));
+
+		if (filtro.DataInicio.HasValue)
+			query = query.Where(a => a.DataHora >= filtro.DataInicio.Value);
+
+		if (filtro.DataFim.HasValue)
+			query = query.Where(a => a.DataHora <= filtro.DataFim.Value);
+
+		var totalRegistros = await query.CountAsync();
+
+		var logs = await query
+			.OrderByDescending(a => a.DataHora)
+			.Skip((pagina - 1) * tamanho)
+			.Take(tamanho)
+			.Select(a => new AuditTableLogDto
+			{
+				DataHora = a.DataHora,
+				Usuario = a.UsuarioId,
+				Tipo = a.TabelaNome,
+				Acao = a.Operacao,
+				Detalhes = !string.IsNullOrWhiteSpace(a.DadosAtual)
+					? a.DadosAtual!
+					: (!string.IsNullOrWhiteSpace(a.DadosAnterior)
+						? a.DadosAnterior!
+						: MontarMensagemAtividade(a.Operacao, a.TabelaNome, a.EntidadeId)),
+				Ip = a.EnderecoIp ?? string.Empty
+			})
+			.ToListAsync();
+
+		return Ok(new PagedResponse<AuditTableLogDto>(logs, totalRegistros, pagina, tamanho));
+	}
+
 	private async Task<AdminDashboardStatsDto> MontarStatsAsync()
 	{
 		var totalAlunos = await _context.Usuario.CountAsync(u => u.Ativo && u.IdPerfil == (int)PerfilEnum.Aluno);
@@ -104,6 +151,19 @@ public class AuditController : ControllerBase
 			return 10;
 
 		return Math.Min(limit, 50);
+	}
+
+	private static int NormalizarPagina(int pagina)
+	{
+		return pagina <= 0 ? 1 : pagina;
+	}
+
+	private static int NormalizarTamanhoPagina(int tamanho)
+	{
+		if (tamanho <= 0)
+			return 10;
+
+		return Math.Min(tamanho, 50);
 	}
 
 	private static string MontarMensagemAtividade(string operacao, string tabelaNome, string entidadeId)
