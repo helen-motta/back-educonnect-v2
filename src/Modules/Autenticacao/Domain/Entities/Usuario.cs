@@ -59,12 +59,10 @@ namespace Modules.Autenticacao.Domain.Entities
 
         public void IncrementarTentativasFalhas(int limiteTentativas = 5, int minutosDesbloqueio = 30)
         {
+            TentativasFalhas = (TentativasFalhas ?? 0) + 1;
+
             if (TentativasFalhas >= limiteTentativas)
-            {
                 BloqueadoAte = DateTime.UtcNow.AddMinutes(minutosDesbloqueio);
-                return;
-            }
-            TentativasFalhas += 1;
         }
 
         public void AtualizarUltimoLogin()

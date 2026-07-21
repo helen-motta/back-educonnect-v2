@@ -2,7 +2,7 @@
 
 API responsável por centralizar as operações da faculdade: usuários, cursos, disciplinas, turmas, matrículas, notas, frequência, atividades, comunicados, requerimentos, documentos e dashboards.
 
-Também oferece auditoria persistida, logs operacionais, autenticação JWT e armazenamento de imagens no Amazon S3.
+Também oferece auditoria persistida, logs operacionais, autenticação JWT e armazenamento de imagens no Amazon S3. O projeto contempla também Testes Unitários.
 
 ## Arquitetura
 
@@ -71,7 +71,6 @@ GET /api/audit/dashboard/stats
 GET /api/audit/dashboard/recent-logs
 ```
 
-A estrutura está pronta, mas a cobertura ainda deve ser ampliada para registrar automaticamente todas as operações críticas.
 
 ## Amazon S3
 
@@ -152,10 +151,7 @@ professor@educonnect.local
 aluno@educonnect.local
 ```
 
-## Pontos pendentes
-
-- ampliar a cobertura automática da auditoria;
-- implementar insights acadêmicos reais;
-- substituir os mocks restantes do desempenho acadêmico;
-- utilizar migrations no ambiente de produção;
-- adicionar testes automatizados.
+Testes:
+```
+dotnet test
+```
