@@ -1,44 +1,28 @@
 using System.Net;
-using System.Text.Json;
 
-namespace Api.Middlewares
+namespace Api.Middlewares;
+
+public sealed class ErrorHandlingMiddleware
 {
-    public class ErrorHandlingMiddleware
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ErrorHandlingMiddleware> _logger;
+    public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger) { _next = next; _logger = logger; }
+
+    public async Task InvokeAsync(HttpContext context)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ErrorHandlingMiddleware> _logger;
-
-        public ErrorHandlingMiddleware(RequestDelegate next, ILogger<ErrorHandlingMiddleware> logger)
+        try { await _next(context); }
+        catch (Exception exception)
         {
-            _next = next;
-            _logger = logger;
-        }
-
-        public async Task InvokeAsync(HttpContext context)
-        {
-            try
+            _logger.LogError(exception, "Erro ao processar {Method} {Path}", context.Request.Method, context.Request.Path);
+            var status = exception switch
             {
-                await _next(context);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Exception: {ex}");
-                await HandleExceptionAsync(context, ex);
-            }
-        }
-
-        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
-        {
-            context.Response.ContentType = "application/json";
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            var response = new
-            {
-                message = "Ocorreu um erro interno no servidor",
-                error = exception.Message
+                ArgumentException => HttpStatusCode.BadRequest,
+                UnauthorizedAccessException => HttpStatusCode.Forbidden,
+                KeyNotFoundException => HttpStatusCode.NotFound,
+                _ => HttpStatusCode.InternalServerError
             };
-
-            return context.Response.WriteAsJsonAsync(response);
+            context.Response.StatusCode = (int)status;
+            await context.Response.WriteAsJsonAsync(new { message = status == HttpStatusCode.InternalServerError ? "Ocorreu um erro interno no servidor." : exception.Message });
         }
     }
 }

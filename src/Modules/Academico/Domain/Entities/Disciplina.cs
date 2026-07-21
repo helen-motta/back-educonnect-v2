@@ -14,11 +14,11 @@ namespace Modules.Academico.Domain.Entities
         [ForeignKey("IdCurso")]
         public virtual Curso Curso { get; set; } = null!;
         [Column("nome")]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
         [Column("codigo")]
-        public string Codigo { get; set; }
+        public string Codigo { get; set; } = string.Empty;
         [Column("ementa")]
-        public string Ementa { get; set; }
+        public string Ementa { get; set; } = string.Empty;
         [Column("carga_horaria")]
         public int CargaHoraria { get; set; }
         [Column("creditos")]

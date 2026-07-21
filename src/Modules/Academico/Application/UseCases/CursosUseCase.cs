@@ -61,6 +61,15 @@ namespace Modules.Autenticacao.Application.UseCases
             return curso;
         }
 
+        public async Task<bool> DesativarCursoAsync(int id)
+        {
+            var curso = await _cursosRepository.BuscarPorIdAsync(id);
+            if (curso is null) return false;
+
+            await _cursosRepository.DesativarAsync(curso);
+            return true;
+        }
+
         public async Task<PagedResponse<CursoDto>> Execute(PaginacaoCursosDto filtro)
         {
             var (cursos, total) = await _cursosRepository.ListarCursosPaginados(filtro);

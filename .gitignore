@@ -1,6 +1,8 @@
 ## Ignore build outputs
 bin/
 obj/
+.packages/
+data/
 publish/
 artifacts/
 

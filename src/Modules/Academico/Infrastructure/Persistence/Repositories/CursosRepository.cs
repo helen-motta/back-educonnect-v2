@@ -33,8 +33,8 @@ namespace Modules.Academico.Domain.Interfaces
             if (!string.IsNullOrWhiteSpace(filtro.Codigo))
                 query = query.Where(c => c.Codigo.Contains(filtro.Codigo));
 
-            if (filtro.Ativo) query = query.Where(c => c.Ativo);
-            else if (!filtro.Ativo) query = query.Where(c => !c.Ativo);
+            if (filtro.Ativo.HasValue)
+                query = query.Where(c => c.Ativo == filtro.Ativo.Value);
             var total = await query.CountAsync();
 
             var cursos = await query
@@ -55,6 +55,13 @@ namespace Modules.Academico.Domain.Interfaces
 
         public async Task AtualizarAsync(Curso curso)
         {
+            _context.Cursos.Update(curso);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DesativarAsync(Curso curso)
+        {
+            curso.Ativo = false;
             _context.Cursos.Update(curso);
             await _context.SaveChangesAsync();
         }

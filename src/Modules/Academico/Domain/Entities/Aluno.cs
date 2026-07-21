@@ -8,6 +8,8 @@ namespace Modules.Academico.Domain.Entities
         public DateTime DataCadastro { get; set; }
         public bool Ativo { get; set; }
 
+        private Aluno() { }
+
         public Aluno(int id, string nome, string matricula)
         {
             if (string.IsNullOrWhiteSpace(nome))

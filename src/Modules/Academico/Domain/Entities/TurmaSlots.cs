@@ -15,7 +15,9 @@ namespace Modules.Academico.Domain.Entities
         public int TurmaId { get; set; }
 
         [Column("codigo_slot")]
-        public string CodigoSlot { get; set; } // "M1"
+        public string CodigoSlot { get; set; } = string.Empty; // "M1"
+
+        public virtual Turma Turma { get; set; } = null!;
 
         [Column("dia_semana")]
         public byte DiaSemana { get; set; }

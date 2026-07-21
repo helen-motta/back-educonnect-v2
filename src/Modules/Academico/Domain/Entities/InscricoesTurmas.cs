@@ -44,7 +44,7 @@ namespace Modules.Academico.Domain.Entities
         [Column("data_inscricao")]
         public DateTime DataInscricao { get; set; } = DateTime.UtcNow;
 
-        public virtual Turma Turma { get; set; } 
-        public virtual Aluno Aluno { get; set; }
+        public virtual Turma Turma { get; set; } = null!;
+        public virtual Aluno Aluno { get; set; } = null!;
     }
 }

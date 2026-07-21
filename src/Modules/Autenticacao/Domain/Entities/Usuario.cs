@@ -3,9 +3,9 @@ namespace Modules.Autenticacao.Domain.Entities
     public class Usuario
     {
         public int Id { get; set; }
-        public string Nome { get; set; }
-        public string Email { get; set; }
-        public string SenhaHash { get; set; }
+        public string Nome { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string SenhaHash { get; set; } = string.Empty;
         public string? ResetSenhaToken { get; set; }
         public DateTime? DataExpiraTokenResetSenha { get; set; }
         public int IdPerfil { get; set; }
@@ -16,17 +16,21 @@ namespace Modules.Autenticacao.Domain.Entities
         public int? VersaoTermos { get; set; }
         public int? TentativasFalhas { get; set; } = 0;
         public DateTime? BloqueadoAte { get; set; }
-        public string Registro { get; set; }
-        public string Cep { get; set; }
-        public string Endereco { get; set; }
-        public string Numero { get; set; }
-        public string Complemento { get; set; }
-        public string Bairro { get; set; }
-        public string Cidade { get; set; }
-        public string Estado { get; set; }
-        public string Telefone { get; set; }
-        public string Cpf { get; set; }
-        public string Rg { get; set; }
+        public string Registro { get; set; } = string.Empty;
+        public string Cep { get; set; } = string.Empty;
+        public string Endereco { get; set; } = string.Empty;
+        public string Numero { get; set; } = string.Empty;
+        public string Complemento { get; set; } = string.Empty;
+        public string Bairro { get; set; } = string.Empty;
+        public string Cidade { get; set; } = string.Empty;
+        public string Estado { get; set; } = string.Empty;
+        public string Telefone { get; set; } = string.Empty;
+        public string Cpf { get; set; } = string.Empty;
+        public string Rg { get; set; } = string.Empty;
+        public string? FotoUrl { get; set; }
+        public bool NotificarTarefas { get; set; } = true;
+        public bool NotificarAvisos { get; set; } = true;
+        public bool NotificarNotas { get; set; } = true;
 
         public Usuario()
         {

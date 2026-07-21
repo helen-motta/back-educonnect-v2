@@ -25,7 +25,7 @@ namespace src.Modules.Academico.Api.Controllers.DisciplinasController
             _auditoriaUseCase = auditoriaUseCase;
         }
 
-        [HttpGet("/{idCurso}")]
+        [HttpGet("curso/{idCurso:int}")]
         public async Task<IActionResult> ObterPorIdCurso(int idCurso)
         {
             var disciplinas = await _disciplinasUseCase.ObterPorIdCursoAsync(idCurso);

@@ -1,211 +1,110 @@
-# EduConnect - Backend
+# EduConnect API
 
-Sistema de educação com autenticação JWT, múltiplos módulos (Acadêmico, Financeiro, Biblioteca, Autenticação) e arquitetura em camadas (Clean Architecture).
+Backend do EduConnect em ASP.NET Core, organizado por módulos e preparado para iniciar sem que o desenvolvedor precise obter uma cópia do banco de dados.
 
-## 🏗️ Estrutura do Projeto
+## Execução rápida
 
-```
-/src
-├── Api/
-│   ├── Controllers/
-│   ├── Middlewares/
-│   └── Program.cs
-├── Modules/
-│   ├── Academico/
-│   │   ├── Domain/
-│   │   ├── Application/
-│   │   ├── Infrastructure/
-│   │   └── Api/
-│   ├── Autenticacao/
-│   │   ├── Domain/
-│   │   ├── Application/
-│   │   ├── Infrastructure/
-│   │   └── Api/
-│   ├── Financeiro/
-│   ├── Biblioteca/
-│   └── Shared/
-└── Tests/
-```
+Pré-requisitos: [.NET SDK 10](https://dotnet.microsoft.com/download) e, para o frontend, Node.js 20 ou superior.
 
-## 🔐 Autenticação
-
-### Endpoint de Login
-
-**POST** `/api/auth/login`
-
-**Request:**
-```json
-{
-  "email": "adm@edu.com",
-  "senha": "123456"
-}
-```
-
-**Response (200 OK):**
-```json
-{
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "usuario": {
-    "id": 1,
-    "nome": "Administrador do Sistema",
-    "email": "adm@edu.com",
-    "idPerfil": 1
-  },
-  "necessitaAceitarTermos": false
-}
-```
-
-### Status Codes de Resposta
-
-- `200 OK` - Login realizado com sucesso
-- `400 Bad Request` - Email e/ou senha não fornecidos
-- `401 Unauthorized` - Credenciais inválidas
-- `403 Forbidden` - Usuário desativado
-- `423 Locked` - Usuário bloqueado temporariamente (após 5 tentativas falhas)
-
-## 🔑 Fluxo de Login
-
-1. **Buscar usuário** pelo e-mail
-2. **Validar status** (ativo)
-3. **Verificar bloqueio** (tentativas e bloqueado_ate)
-4. **Validar senha** com BCrypt
-5. **Resetar tentativas** em caso de sucesso
-6. **Atualizar último login**
-7. **Gerar JWT** com claims (id, email, perfil)
-8. **Validar aceite de termos** (se necessário)
-9. **Retornar token e dados do usuário**
-
-## 📋 Segurança
-
-- ✅ Senhas hasheadas com BCrypt
-- ✅ JWT com expiração configurável
-- ✅ Limite de tentativas de login (5)
-- ✅ Bloqueio temporário (30 minutos)
-- ✅ Autenticação com claims
-- ✅ Validação de token
-
-## 🗄️ Banco de Dados
-
-### Tabela: usuarios
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| id | INT | ID único |
-| nome | NVARCHAR(150) | Nome completo |
-| email | NVARCHAR(150) | Email único |
-| senha_hash | NVARCHAR(255) | Hash da senha (BCrypt) |
-| id_perfil | INT | Referência ao perfil |
-| ativo | BIT | 1=ativo, 0=inativo |
-| tentativas_falhas | INT | Contador de tentativas |
-| bloqueado_ate | DATETIME | Data de desbloqueio |
-| ultimo_login | DATETIME | Último login |
-| data_aceite_termos | DATETIME | Data de aceite |
-| versao_termos | INT | Versão aceita |
-| data_criacao | DATETIME | Data de criação |
-| data_atualizacao | DATETIME | Data de atualização |
-
-## 🚀 Como Executar
-
-### Pré-requisitos
-- .NET 7.0+
-- SQL Server
-- Visual Studio ou VS Code
-
-### Passos
-
-1. **Clonar o repositório**
-```bash
-git clone <repo-url>
-cd back-educonnect
-```
-
-2. **Restaurar dependências**
-```bash
+```powershell
 dotnet restore
+dotnet run --urls http://localhost:5055
 ```
 
-3. **Criar banco de dados**
-```bash
-# Execute o script DATABASE_SCHEMA.sql no SQL Server
+Na primeira execução, a aplicação cria automaticamente `data/educonnect.db` (SQLite), monta o esquema e inclui dados de demonstração. A documentação interativa fica em `http://localhost:5055/swagger` e o estado do serviço em `http://localhost:5055/health`.
+
+Não é preciso clonar, restaurar ou executar scripts de banco para desenvolvimento local. Para recriar a base, encerre a API e apague `data/educonnect.db`; ela será gerada novamente no próximo início.
+
+## Contas de demonstração
+
+Todas usam a senha `123456`.
+
+| Perfil | E-mail |
+| --- | --- |
+| Administrador | `admin@educonnect.local` |
+| Coordenador | `coordenador@educonnect.local` |
+| Professor | `professor@educonnect.local` |
+| Aluno | `aluno@educonnect.local` |
+
+Essas contas existem apenas quando `Database__SeedDemoData=true`.
+
+## Configuração
+
+Os valores locais estão em `appsettings.json`. Toda opção pode ser substituída por variável de ambiente usando `__` entre níveis:
+
+```powershell
+$env:Database__Provider = "Sqlite"
+$env:ConnectionStrings__DefaultConnection = "Data Source=data/educonnect.db"
+$env:JwtSettings__SecretKey = "uma-chave-com-pelo-menos-32-caracteres"
+dotnet run --urls http://localhost:5055
 ```
 
-4. **Configurar appsettings.json**
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=SEU_SERVER;Database=back_educonnect;User Id=sa;Password=SUA_SENHA;"
-  },
-  "JwtSettings": {
-    "SecretKey": "sua_chave_secreta_segura_com_minimo_32_caracteres",
-    "Issuer": "EduConnect",
-    "Audience": "EduConnectUsers",
-    "ExpirationMinutes": 60
-  }
-}
+### SQL Server em produção
+
+O arquivo `appsettings.Production.example.json` contém um modelo. Copie-o para `appsettings.Production.json`, substitua os valores e execute com `ASPNETCORE_ENVIRONMENT=Production`. Nesse modo, use `Database__Provider=SqlServer` e uma conexão SQL Server válida. `Initialize=false` evita alterações automáticas no banco de produção.
+
+### Imagens no Amazon S3
+
+Fotos de perfil são validadas como imagem (JPEG, PNG, WebP ou GIF, até 5 MB) e enviadas ao bucket S3 pela rota `POST /api/perfil/foto`. As chaves seguem `usuarios/AAAA/MM/<guid>.<extensão>`.
+
+As credenciais presentes em `appsettings.json` são deliberadamente fictícias. Configure valores reais por secret manager ou variáveis de ambiente:
+
+```text
+AWS__Region=sa-east-1
+AWS__BucketName=educonnect-imagens-prod
+AWS__AccessKey=<access-key>
+AWS__SecretKey=<secret-key>
+AWS__PublicBaseUrl=https://cdn.exemplo.com
 ```
 
-5. **Executar**
-```bash
-dotnet run
+O usuário IAM precisa de `s3:PutObject` no prefixo `usuarios/*`. Não versione credenciais reais. O bucket ou CDN deve permitir leitura das imagens retornadas ao frontend.
+
+### E-mail local
+
+Em desenvolvimento, `Email__Provider=Console` registra os e-mails de recuperação no terminal e elimina a dependência de um provedor externo.
+Em produção, use `Email__Provider=SendGrid` e configure `SendGrid__ApiKey`, `SendGrid__FromEmail` e `SendGrid__FromName`.
+
+## Arquitetura
+
+```text
+src/
+├── Api/                     inicialização, banco local, seed e middleware
+├── Modules/
+│   ├── Autenticacao/
+│   │   ├── Api/             controllers
+│   │   ├── Application/     DTOs e casos de uso
+│   │   ├── Domain/          entidades e contratos
+│   │   └── Infrastructure/  persistência e serviços
+│   └── Academico/           mesma divisão por camadas
+└── Shared/                  contexto EF, storage S3 e contratos comuns
 ```
 
-6. **Acessar Swagger**
-```
-https://localhost:5001/swagger
-```
+Controllers cuidam de HTTP, casos de uso concentram regras, repositórios encapsulam persistência e entidades representam o domínio. As funcionalidades antes estáticas — dashboards, comunicados, atividades, salas, matrícula, configurações e turmas — usam o mesmo fluxo e persistem no banco.
 
-## 🧪 Testando o Login
+## Rotas principais
 
-### Com Curl
-```bash
-curl -X POST https://localhost:5001/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"adm@edu.com","senha":"123456"}'
-```
+- `POST /api/auth/login`: autenticação JWT.
+- `GET /api/perfil`: usuário autenticado.
+- `GET /api/dashboard/{perfil}`: painéis de professor e coordenador.
+- `GET /api/turmas`, `/api/atividades`, `/api/comunicados`: domínio acadêmico.
+- `GET /api/matriculas/cursos-disponiveis`: catálogo sem dados fixos no frontend.
+- `GET /api/audit/dashboard`: painel administrativo.
 
-### Com Postman
-1. Novo POST request
-2. URL: `https://localhost:5001/api/auth/login`
-3. Body (raw JSON):
-```json
-{
-  "email": "adm@edu.com",
-  "senha": "123456"
-}
+Use `Authorization: Bearer <token>` nas rotas protegidas.
+
+## Docker
+
+```powershell
+docker build -t educonnect-api .
+docker run --rm -p 5055:5055 -v educonnect-data:/app/data educonnect-api
 ```
 
-## 🔑 Usando o Token
+O volume preserva o SQLite entre reinícios. Para produção, forneça as configurações por `--env-file` ou secret manager.
 
-Adicione o token no header de requisições autenticadas:
+## Verificação
 
+```powershell
+dotnet build
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
 
-## 📦 Dependências
-
-- `Microsoft.AspNetCore.Authentication.JwtBearer` - Autenticação JWT
-- `System.IdentityModel.Tokens.Jwt` - Manipulação de JWT
-- `BCrypt.Net-Core` - Hash de senhas
-- `System.Data.SqlClient` - Acesso ao SQL Server
-
-## 📝 Arquitetura
-
-### Clean Architecture com DDD
-
-- **Domain**: Entidades, Interfaces, Regras de negócio
-- **Application**: UseCases, DTOs, Commands/Queries
-- **Infrastructure**: Repositories, Services, Banco de dados
-- **Api**: Controllers, Middlewares
-
-## 🤝 Contribuindo
-
-1. Fork o projeto
-2. Crie uma branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT.
+O projeto ainda contém avisos de nulabilidade em modelos legados, mas deve compilar sem erros. Para uma checagem funcional, inicie a API, abra `/health` e autentique uma das contas de demonstração.

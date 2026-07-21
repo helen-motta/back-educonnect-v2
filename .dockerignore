@@ -1,2 +1,9 @@
-node_modules
-npm-debug.log
+bin/
+obj/
+.packages/
+data/
+.git/
+.vs/
+.idea/
+*.user
+*.log

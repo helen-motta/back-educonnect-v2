@@ -90,6 +90,9 @@ namespace src.Modules.Academico.Api.Controllers.CursosController
 
             var cursoAtualizado = await _cursosUseCase.AtualizarCursoAsync(id, request);
 
+            if (cursoAtualizado == null)
+                return NotFound($"Curso com ID {id} não encontrado.");
+
             await _auditoriaUseCase.RegistrarAsync(new RegistrarAuditoriaRequestDto
             {
                 TabelaNome = "cursos",
@@ -101,10 +104,16 @@ namespace src.Modules.Academico.Api.Controllers.CursosController
                 UserAgent = ObterUserAgent()
             });
 
-            if (cursoAtualizado == null)
+            return Ok(cursoAtualizado);
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> DesativarCurso(int id)
+        {
+            if (!await _cursosUseCase.DesativarCursoAsync(id))
                 return NotFound($"Curso com ID {id} não encontrado.");
 
-            return Ok(cursoAtualizado);
+            return NoContent();
         }
     }
 }

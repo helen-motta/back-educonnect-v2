@@ -61,15 +61,18 @@ public class AuditController : ControllerBase
 		if (!string.IsNullOrWhiteSpace(filtro.Acao))
 			query = query.Where(a => a.Operacao.Contains(filtro.Acao));
 
+		var registros = await query.ToListAsync();
+		var filtrados = registros.AsEnumerable();
+
 		if (filtro.DataInicio.HasValue)
-			query = query.Where(a => a.DataHora >= filtro.DataInicio.Value);
+			filtrados = filtrados.Where(a => a.DataHora >= filtro.DataInicio.Value);
 
 		if (filtro.DataFim.HasValue)
-			query = query.Where(a => a.DataHora <= filtro.DataFim.Value);
+			filtrados = filtrados.Where(a => a.DataHora <= filtro.DataFim.Value);
 
-		var totalRegistros = await query.CountAsync();
+		var totalRegistros = filtrados.Count();
 
-		var logs = await query
+		var logs = filtrados
 			.OrderByDescending(a => a.DataHora)
 			.Skip((pagina - 1) * tamanho)
 			.Take(tamanho)
@@ -86,7 +89,7 @@ public class AuditController : ControllerBase
 						: MontarMensagemAtividade(a.Operacao, a.TabelaNome, a.EntidadeId)),
 				Ip = a.EnderecoIp ?? string.Empty
 			})
-			.ToListAsync();
+			.ToList();
 
 		return Ok(new PagedResponse<AuditTableLogDto>(logs, totalRegistros, pagina, tamanho));
 	}
@@ -121,20 +124,10 @@ public class AuditController : ControllerBase
 
 	private async Task<List<AdminRecentLogDto>> BuscarAtividadesRecentesAsync(int limit)
 	{
-		var itens = await _context.Auditorias
+		var registros = await _context.Auditorias
 			.AsNoTracking()
-			.OrderByDescending(a => a.DataHora)
-			.Take(limit)
-			.Select(a => new
-			{
-				a.Id,
-				a.UsuarioId,
-				a.TabelaNome,
-				a.Operacao,
-				a.EntidadeId,
-				a.DataHora
-			})
 			.ToListAsync();
+		var itens = registros.OrderByDescending(a => a.DataHora).Take(limit).ToList();
 
 		return itens.Select((x, indice) => new AdminRecentLogDto
 		{

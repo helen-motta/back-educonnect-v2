@@ -8,5 +8,6 @@ namespace Modules.Academico.Domain.Interfaces
         Task<(IEnumerable<Curso> cursos, int total)> ListarCursosPaginados(PaginacaoCursosDto filtro);
         Task<Curso> AdicionarAsync(Curso curso);
         Task AtualizarAsync(Curso curso);
+        Task DesativarAsync(Curso curso);
     }
 }

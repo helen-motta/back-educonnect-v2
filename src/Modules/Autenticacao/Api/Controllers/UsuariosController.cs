@@ -36,6 +36,13 @@ namespace Modules.Autenticacao.Api.Controllers
             return NoContent();
         }
 
+        [HttpPut("desativar/{id:int}")]
+        public async Task<IActionResult> DesativarUsuario(int id)
+        {
+            await _usuarioUseCase.DesativarUsuarioAsync(id);
+            return NoContent();
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuario(int id)
         {

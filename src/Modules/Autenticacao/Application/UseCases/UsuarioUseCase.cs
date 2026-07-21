@@ -37,7 +37,7 @@ namespace Modules.Autenticacao.Application.UseCases
                 Nome = usuarioDto.Nome,
                 Email = await GerarEmailAsync(usuarioDto.Nome),
                 IdPerfil = usuarioDto.IdPerfil,
-                SenhaHash = GerarSenha(),
+                SenhaHash = BCrypt.Net.BCrypt.HashPassword(GerarSenha()),
                 CriadoEm = DateTime.UtcNow,
                 Registro = await GerarRegistro(usuarioDto.IdPerfil),
                 Cep = usuarioDto.Cep,
@@ -153,6 +153,14 @@ namespace Modules.Autenticacao.Application.UseCases
             await _usuarioRepository.DeletarAsync(id);
         }
 
+        public async Task DesativarUsuarioAsync(int id)
+        {
+            var usuario = await _usuarioRepository.BuscarPorIdAsync(id)
+                ?? throw new KeyNotFoundException("Usuário não encontrado.");
+            usuario.Ativo = false;
+            await _usuarioRepository.AtualizarAsync(usuario);
+        }
+
         public async Task<UsuarioDto> ObterUsuarioPorIdAsync(int id)
         {
             var usuario = await _usuarioRepository.BuscarPorIdAsync(id);
@@ -177,8 +185,32 @@ namespace Modules.Autenticacao.Application.UseCases
                 Telefone = usuario.Telefone,
                 Cpf = usuario.Cpf,
                 Rg = usuario.Rg,
-                Registro = usuario.Registro
+                Registro = usuario.Registro,
+                Papel = ((PerfilEnum)usuario.IdPerfil).ToString(),
+                Status = usuario.Ativo ? "Ativo" : "Inativo",
+                FotoUrl = usuario.FotoUrl,
+                NotificarTarefas = usuario.NotificarTarefas,
+                NotificarAvisos = usuario.NotificarAvisos,
+                NotificarNotas = usuario.NotificarNotas
             };
+        }
+
+        public async Task<string> AtualizarFotoAsync(int id, string fotoUrl)
+        {
+            var usuario = await _usuarioRepository.BuscarPorIdAsync(id) ?? throw new KeyNotFoundException("Usuário não encontrado.");
+            usuario.FotoUrl = fotoUrl;
+            await _usuarioRepository.AtualizarAsync(usuario);
+            return fotoUrl;
+        }
+
+        public async Task<PreferenciasNotificacaoDto> AtualizarPreferenciasAsync(int id, PreferenciasNotificacaoDto dto)
+        {
+            var usuario = await _usuarioRepository.BuscarPorIdAsync(id) ?? throw new KeyNotFoundException("Usuário não encontrado.");
+            usuario.NotificarTarefas = dto.NotificarTarefas;
+            usuario.NotificarAvisos = dto.NotificarAvisos;
+            usuario.NotificarNotas = dto.NotificarNotas;
+            await _usuarioRepository.AtualizarAsync(usuario);
+            return dto;
         }
 
         public async Task<UsuarioDto> AtualizarUsuarioAsync(int id, UsuarioDto usuarioDto)
@@ -229,7 +261,11 @@ namespace Modules.Autenticacao.Application.UseCases
                 Complemento = u.Complemento,
                 Bairro = u.Bairro,
                 Cidade = u.Cidade,
-                Estado = u.Estado
+                Estado = u.Estado,
+                FotoUrl = u.FotoUrl,
+                NotificarTarefas = u.NotificarTarefas,
+                NotificarAvisos = u.NotificarAvisos,
+                NotificarNotas = u.NotificarNotas
             }).ToList();
 
             return new PagedResponse<UsuarioDto>(listaDto, total, filtro.PaginaNumero, filtro.PaginaTamanho);
